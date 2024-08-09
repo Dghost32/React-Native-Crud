@@ -1,14 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-interface Props<T> {
-  value: T;
-  setValue: (value: T) => void;
-  key: string;
-}
-
-function useAsyncStorage<T extends unknown>(props: Props<T>) {
-  const { value, setValue, key } = props;
+function useAsyncStorage<T extends unknown>({
+  key,
+  initialValue,
+}: Props<T>): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [value, setValue] = useState<T>(initialValue);
 
   async function save() {
     try {
@@ -38,12 +35,19 @@ function useAsyncStorage<T extends unknown>(props: Props<T>) {
   useEffect(() => {
     restore();
 
-    return setValue(value);
+    return setValue((value) => value);
   }, []);
 
   useEffect(() => {
     save();
   }, [value]);
+
+  return [value, setValue];
+}
+
+interface Props<T> {
+  initialValue: T;
+  key: string;
 }
 
 export default useAsyncStorage;
